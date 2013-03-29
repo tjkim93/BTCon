@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BTCon</string>
+
+    <!--  BluetoothChat -->
+    <string name="send">Send</string>
+    <string name="not_connected">You are not connected to a device</string>
+    <string name="bt_not_enabled_leaving">Bluetooth was not enabled.</string>
+    <string name="title_connecting">connecting...</string>
+    <string name="title_connected_to">connected: </string>
+    <string name="title_not_connected">not connected</string>
+    <string name="connected_to">Connected to </string>
+    <string name="unable_connect">Unable to connect device</string>
+    <string name="connection_lost">Device connection was lost</string>
+
+    <!--  DeviceListActivity -->
+    <string name="scanning">scanning for devices...</string>
+    <string name="select_device">select a device to connect</string>
+    <string name="none_paired">No devices have been paired</string>
+    <string name="none_found">No devices found</string>
+    <string name="title_paired_devices">Paired Devices</string>
+    <string name="title_other_devices">Other Available Devices</string>
+    <string name="button_scan">Scan for devices</string>
+
+    <!-- Options Menu -->
+    <string name="connect">Connect device</string>
+    <string name="disconnect">Disconnect device</string>
+    <string name="exit">Exit</string>
+    <string name="speech">Speech</string>
+    <string name="voice_commands">Voice commands</string>
+    
+    <!-- Korean characters -->
+    <string name="left_korean">왼쪽</string>
+    <string name="right_korean">오른쪽</string>
+    <string name="move_korean">이동</string>
+    <string name="rotate_korean">회전</string>
+    <string name="run_korean">전진</string>
+    <string name="back_korean">후진</string>
+    <string name="stop_korean">정지</string>
+    
+    <string name="bt_setting">BT Settings</string>
+    <string name="bt_connect">BT Connect</string>
+    <string name="bt_controller">Controller</string>
+    <string name="bt_robot_controller">Robot Controller</string>
+    <string name="quit">QUIT</string>
+    <string name="about">About</string>
+    <string name="about_text">
+		<![CDATA[
+		This program is controller application\n
+		for Interboard-BT9\n
+		angengine is used for controller screen\n\n
+		made by TJ Kim
+		]]>
+    </string>
+
+    <string name="btcon_config">BTCon Config</string>
+    <string name="config_device">Bluetooth Device</string>
+    <string name="config_selBT">Select BT Device</string>
+    <string name="config_stick">Stick Mode</string>
+    <string name="config_reverse">Reverse Setting</string>
+    <string name="config_sensor_sensitivity">Sensor Sensitivity</string>
+    
+    <string name="btn_hold">HOLD</string>
+    <string name="btn_trim">TRIM</string>
+    <string name="btn_sensor">SENSOR</string>
+    
+    
+</resources>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BTCon</string>
+
+    <!--  BluetoothChat -->
+    <string name="send">보내기</string>
+    <string name="not_connected">장치가 연결되지 않았습니다.</string>
+    <string name="bt_not_enabled_leaving">블루투스가 활성화되지 않았습니다.</string>
+    <string name="title_connecting">연결 중...</string>
+    <string name="title_connected_to">연결됨: </string>
+    <string name="title_not_connected">연결되지 않았습니다.</string>
+    <string name="connected_to">연결</string>
+    <string name="unable_connect">장치를 연결할 수 없습니다</string>
+    <string name="connection_lost">장치 연결이 끊어졌습니다</string>
+
+    <!--  DeviceListActivity -->
+    <string name="scanning">장치를 스캔 중...</string>
+    <string name="select_device">연결하는 장치를 선택</string>
+    <string name="none_paired">No devices have been paired</string>
+    <string name="none_found">아무 장치가 없습니다</string>
+    <string name="title_paired_devices">Paring된 장치</string>
+    <string name="title_other_devices">검색된 블루투스 장치</string>
+    <string name="button_scan">장치 스캔</string>
+
+    <!-- Options Menu -->
+    <string name="connect">장치 연결</string>
+    <string name="disconnect">장치 분리</string>
+    <string name="exit">종료</string>
+    <string name="speech">음성 명령</string>
+    <string name="voice_commands">음성 명령어</string>
+    
+    <string name="bt_setting">블루투스 설정</string>
+    <string name="bt_connect">블루투스 연결</string>
+    <string name="bt_controller">조종기</string>
+    <string name="bt_robot_controller">로봇 조종기</string>
+    <string name="quit">종료</string>
+    <string name="about">About</string>
+    <string name="about_text">
+       	<![CDATA[
+		이 프로그램은 Interboard-BT9\n
+		조종기 어플리케이션입니다\n
+		조종기 화면은 andengine을\n
+		이용하였습니다\n\n
+		made by 김태준
+		]]>
+    </string>
+   
+    <string name="btn_hold">쓰로틀 홀드</string>
+    <string name="btn_trim">트림</string>
+    <string name="btn_sensor">센서로 조종</string>
+</resources>

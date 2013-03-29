@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">    
+
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.82"
+        android:background="@drawable/brushed" >        
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/TextView03"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/smalltittle"
+                android:text="@string/config_device"
+                android:textColor="@color/smalltittleText" />
+
+            <Button
+                android:id="@+id/buttonSelectBTDevice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="SelectBTdevice"
+                android:text="@string/config_selBT" />
+
+            <TextView
+                android:id="@+id/textViewMacAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="---"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+            
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/smalltittle"
+                android:text="@string/config_stick"
+                android:textColor="@color/smalltittleText" />
+            
+          	<Spinner
+          	    android:id="@+id/spinner_stickmode"
+          	    style="android:spinnerStyle"
+          	    android:layout_width="match_parent"
+          	    android:layout_height="wrap_content"
+          	    android:drawSelectorOnTop="true"
+          	    android:entries="@array/stick_modes" />
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/smalltittle"
+                android:text="@string/config_reverse"
+                android:textColor="@color/smalltittleText" />
+            
+            <CheckBox
+                android:id="@+id/checkBoxRevThrottle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Throttle" />
+            
+            <CheckBox
+                android:id="@+id/checkBoxRevAileron"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Aileron" />
+            
+            <CheckBox
+                android:id="@+id/checkBoxRevElevator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Elevator" />
+            
+            <CheckBox
+                android:id="@+id/checkBoxRevRudder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rudder" />
+          	
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/smalltittle"
+                android:text="@string/config_sensor_sensitivity"
+                android:textColor="@color/smalltittleText" />
+
+            <SeekBar
+                android:id="@+id/seekBarSensitivity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/textViewSensitivity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+            
+        </LinearLayout>
+        
+    </ScrollView>
+
+</LinearLayout>

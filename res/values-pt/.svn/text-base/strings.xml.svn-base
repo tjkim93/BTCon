@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MotorControl</string>
+
+    <!--  BluetoothChat -->
+    <string name="send">Enviar</string>
+    <string name="not_connected">Você não está conectado a um dispositivo</string>
+    <string name="bt_not_enabled_leaving">Bluetooth não foi ativado.</string>
+    <string name="title_connecting">conectar ...</string>
+    <string name="title_connected_to">conectado: </string>
+    <string name="title_not_connected">não conectado</string>
+    <string name="connected_to">Ligado ao </string>
+    <string name="unable_connect">Não foi possível conectar dispositivo</string>
+    <string name="connection_lost">Conexão do dispositivo foi perdido</string>
+
+    <!--  DeviceListActivity -->
+    <string name="scanning">A procura de dispositivos...</string>
+    <string name="select_device">selecionar um dispositivo para conectar</string>
+    <string name="none_paired">Nenhum dispositivo ter sido emparelhado</string>
+    <string name="none_found">Nenhum dispositivo encontrado</string>
+    <string name="title_paired_devices">Dispositivos emparelhados</string>
+    <string name="title_other_devices">Outros dispositivos disponíveis</string>
+    <string name="button_scan">Os dispositivos de busca</string>
+
+    <!-- Options Menu -->
+    <string name="connect">Conecte o dispositivo</string>
+    <string name="disconnect">Desligar o dispositivo</string>
+    <string name="exit">Saída</string>
+    <string name="speech">Fala</string>
+    <string name="voice_commands">Comandos de voz</string>
+</resources>

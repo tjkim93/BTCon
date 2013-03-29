@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MotorControl</string>
+
+    <!--  BluetoothChat -->
+    <string name="send">送信</string>
+    <string name="not_connected">あなたは、デバイスに接続されていません</string>
+    <string name="bt_not_enabled_leaving">Bluetoothは有効になりませんでした。</string>
+    <string name="title_connecting">接続...</string>
+    <string name="title_connected_to">接続： </string>
+    <string name="title_not_connected">接続していない</string>
+    <string name="connected_to">に接続 </string>
+    <string name="unable_connect">デバイスを接続できません</string>
+    <string name="connection_lost">デバイスの接続が失われた</string>
+
+    <!--  DeviceListActivity -->
+    <string name="scanning">デバイスをスキャン中...</string>
+    <string name="select_device">接続するデバイスを選択します。</string>
+    <string name="none_paired">ないデバイスがペアリングされていない</string>
+    <string name="none_found">ないデバイスが見つかりませんでした</string>
+    <string name="title_paired_devices">ペアリング済みデバイス</string>
+    <string name="title_other_devices">他の使用可能なデバイス</string>
+    <string name="button_scan">デバイスをスキャン</string>
+
+    <!-- Options Menu -->
+    <string name="connect">デバイスを接続する</string>
+    <string name="disconnect">デバイスを取り外します</string>
+    <string name="exit">終了</string>
+    <string name="speech">音声</string>
+    <string name="voice_commands">ボイスコマンド</string>
+</resources>

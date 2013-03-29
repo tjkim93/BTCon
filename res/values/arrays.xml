@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="stick_modes">
+        <item>Mode 1</item>
+        <item>Mode 2</item>
+        <item>Mode 3</item>
+        <item>Mode 4</item>
+    </string-array>
+</resources>

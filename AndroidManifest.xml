@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.tj.android.btrobot"
+      android:versionCode="1"
+      android:versionName="1.0">
+      
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="15" />
+
+    <application android:icon="@drawable/icon"
+        android:name="com.tj.android.btrobot.BTConApp" 
+        android:label="@string/app_name">
+        
+        <activity android:name="com.tj.android.btrobot.BTConMain"
+                  android:label="@string/app_name" android:screenOrientation="portrait">
+			<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>        
+        
+        <activity android:name=".BTConSetting"
+                  android:label="@string/bt_setting" android:screenOrientation="portrait">
+        </activity>
+        
+		<activity android:name=".BTRobotController"
+                  android:label="@string/bt_controller" android:screenOrientation="landscape">
+        </activity>
+        
+		<activity android:name=".BTReceiverController"
+                  android:label="@string/bt_controller" android:screenOrientation="landscape">
+        </activity>
+        
+		<activity android:name=".BTConConfig"
+                  android:label="@string/btcon_config" android:screenOrientation="portrait">
+        </activity>
+        
+        <activity android:name="com.tj.android.btrobot.About"
+                  android:label="@string/about"
+                  android:theme="@android:style/Theme.Dialog" >
+        </activity>
+    </application>
+    
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+	<uses-permission android:name="android.permission.WAKE_LOCK"/>
+	<uses-permission android:name="android.permission.CAMERA"/>
+	<uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+	<uses-permission android:name="android.permission.VIBRATE"/>
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>    
+   
+    
+</manifest>
