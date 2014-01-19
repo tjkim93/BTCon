@@ -41,12 +41,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Vibrator;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.Toast;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import org.anddev.andengine.entity.primitive.Line;
-
 import com.tj.android.btrobot.R;
 
 public class BTReceiverController extends BaseExample implements IAccelerometerListener {
@@ -62,7 +63,8 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 	private static final int SW_TRIM_IDX = 5;
 	private static final int SW_SENSOR_IDX = 6;
 	private static final int SW_HOLD_IDX = 7;
-	private static final int SW_TEXTURE_CNT = SW_CNT + 3; // including throttle hold / trim
+	private static final int SW_LAND_IDX = 8;
+	private static final int SW_TEXTURE_CNT = SW_CNT + 4; // including throttle hold / trim
 	
 	
 	private static final int IDX_BEG = 0;
@@ -80,7 +82,7 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 	
 	private static final int IDX_SWI = 5;
 	private static final int MAX_DATA_SIZE = 10;
-	private static final float SCALE_FACTOR = 1.3f;
+	private static final float SCALE_FACTOR = 1.2f;
 	
 	private static final int ARROW_BTN_CNT   = 4;
 	private static final int ARROW_UP_IDX    = 0;
@@ -96,10 +98,22 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 	private static final int IDX_INPUT_TRIM   = 1;
 	private static final int IDX_INPUT_SENSOR = 2;
 	
+	private static final int LANDING_STATE_UP_1 = 1;
+	private static final int LANDING_STATE_UP_2 = 2;
+	private static final int LANDING_STATE_UP_3 = 3;
+	private static final int LANDING_STATE_UP_4 = 4;
+	private static final int LANDING_STATE_UP_5 = 5;
+	private static final int LANDING_STATE_UP_6 = 6;
+	private static final int LANDING_STATE_UP_DONE = 7;
+	private static final int LANDING_STATE_DOWN_1  = 8;
+	private static final int LANDING_STATE_DOWN_2  = 9;
+	private static final int LANDING_STATE_DOWN_DONE  = 10;
+
+	
 	// ============================================================================================
 	// VARIABLES 
 	// ============================================================================================
-	private BTReceiverCom m_btCom = null;	
+	//private BTReceiverCom app.m_btCom = null;
 	private String        m_strBTMac = null;	
 
 	private Camera m_Camera;
@@ -144,6 +158,7 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 	private int         m_nTrimElevator = 127;
 	private int         m_nTrimRudder   = 127;
 	private int         m_nSensitivity = 0;
+	private int			m_nLandingState = LANDING_STATE_DOWN_DONE;
 
 	private boolean     m_bOSCDiffVLoc = false;
 	private byte        m_ucData2Send[];
@@ -151,6 +166,8 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
     private Timer       m_tmrTxData;
     private RefreshTask m_tskTxData;
     private Handler     m_hndTxData = null;
+    
+    private Handler     m_hndIPega = null;
    
     BTConApp app;
     
@@ -340,10 +357,15 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 			}
 		};
 		
-		ExtraBtn extBtn[] = new ExtraBtn[3];
-		extBtn[0] = new ExtraBtn(CAMERA_WIDTH / 2 - (this.m_trSwitches[0].getWidth() / 2) - 90, CAMERA_HEIGHT - 80, getString(R.string.btn_trim));
-		extBtn[1] = new ExtraBtn(CAMERA_WIDTH / 2 - (this.m_trSwitches[0].getWidth() / 2) + 0, CAMERA_HEIGHT - 80, getString(R.string.btn_sensor));
-		extBtn[2] = new ExtraBtn(CAMERA_WIDTH / 2 - (this.m_trSwitches[0].getWidth() / 2) + 90, CAMERA_HEIGHT - 80, getString(R.string.btn_hold));
+		ExtraBtn extBtn[] = new ExtraBtn[4];
+		extBtn[0] = new ExtraBtn(CAMERA_WIDTH / 2 - (this.m_trSwitches[0].getWidth() / 2) - 90, 
+				CAMERA_HEIGHT - 70, getString(R.string.btn_trim));
+		extBtn[1] = new ExtraBtn(CAMERA_WIDTH / 2 - (this.m_trSwitches[0].getWidth() / 2) + 0, 
+				CAMERA_HEIGHT - 70, getString(R.string.btn_sensor));
+		extBtn[2] = new ExtraBtn(CAMERA_WIDTH / 2 - (this.m_trSwitches[0].getWidth() / 2) + 90, 
+				CAMERA_HEIGHT - 70, getString(R.string.btn_hold));
+		extBtn[3] = new ExtraBtn(CAMERA_WIDTH / 2 - (this.m_trSwitches[0].getWidth() / 2) + 180, 
+				CAMERA_HEIGHT - 70, "½Ãµ¿");
 		
 		// Switch
 		m_textSwitches = new Text[SW_TEXTURE_CNT];
@@ -400,11 +422,11 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 	private void LoadAnalogControl(Scene scene) {
 		// LEFT Analog
 		final int x1 = 40;
-		final int y1 = (CAMERA_HEIGHT - this.m_trOSC.getHeight()) / 2 + 40;		
+		final int y1 = (CAMERA_HEIGHT - this.m_trOSC.getHeight()) / 2 + 10;		
 		
 		// Right control
 		final int x2 = CAMERA_WIDTH - this.m_trOSC.getWidth() - 80;
-		final int y2 = (CAMERA_HEIGHT - this.m_trOSC.getHeight()) / 2 + 40;
+		final int y2 = (CAMERA_HEIGHT - this.m_trOSC.getHeight()) / 2 + 10;
 		
 		m_aoscLeft = new AnalogOnScreenControl(x1, y1, 
 		        this.m_Camera, this.m_trOSC, this.m_trOSCKnob, 0.1f, 200, 
@@ -440,7 +462,7 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 
 				if (pValueX == m_fPrevRX && pValueY == m_fPrevRY)
 					return;
-				
+				//Log.d(TAG, String.format("X:%f Y:%f",  pValueX, pValueY));
 				updateStickData(IDX_STICK_RIGHT, IDX_INPUT_STICK, (float)(pValueX * 1.2), (float)(pValueY * 1.2));
 				m_fPrevRX = pValueX;
 				m_fPrevRY = pValueY;
@@ -465,18 +487,14 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 		if (idx == 0) {
 			switch (m_nStickMode) {
 			case 1:
-				if (this.m_bSwitches[SW_SENSOR_IDX] == true)
-					break;
-				
 				updateRudder(pValueX);
-				updateEle(-pValueY);
+				if (this.m_bSwitches[SW_SENSOR_IDX] == false)
+					updateEle(-pValueY);
 				m_smLeft.moveMarker(m_ucData2Send[IDX_RUD], (byte) (0xff - m_ucData2Send[IDX_ELE]));
 				break;
 				
 			case 2:
-				if (this.m_bSwitches[SW_SENSOR_IDX] == false)
-					updateRudder(pValueX);
-				
+				updateRudder(pValueX);
 				updateThrottle(pValueY);
 				m_smLeft.moveMarker(m_ucData2Send[IDX_RUD], (byte) (0xff - m_ucData2Send[IDX_THR]));
 				break;
@@ -484,7 +502,6 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 			case 3:
 				if (this.m_bSwitches[SW_SENSOR_IDX] == true)
 					break;
-				
 				updateAileron(pValueX);
 				updateEle(-pValueY);
 				m_smLeft.moveMarker(m_ucData2Send[IDX_AIL], (byte) (0xff - m_ucData2Send[IDX_ELE]));
@@ -493,7 +510,6 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 			case 4:
 				if (this.m_bSwitches[SW_SENSOR_IDX] == false)
 					updateAileron(pValueX);
-				
 				updateThrottle(pValueY);
 				m_smLeft.moveMarker(m_ucData2Send[IDX_AIL], (byte) (0xff - m_ucData2Send[IDX_THR]));
 				break;
@@ -506,7 +522,6 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 			case 1:
 				if (this.m_bSwitches[SW_SENSOR_IDX] == false)
 					updateAileron(pValueX);
-				
 				updateThrottle(pValueY);
 				m_smRight.moveMarker(m_ucData2Send[IDX_AIL], (byte) (0xff - m_ucData2Send[IDX_THR]));
 				break;
@@ -514,26 +529,21 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 			case 2:
 				if (this.m_bSwitches[SW_SENSOR_IDX] == true)
 					break;
-				
 				updateAileron(pValueX);
 				updateEle(-pValueY);
 				m_smRight.moveMarker(m_ucData2Send[IDX_AIL], (byte) (0xff - m_ucData2Send[IDX_ELE]));
 				break;
 				
 			case 3:
-				if (this.m_bSwitches[SW_SENSOR_IDX] == false)
-					updateRudder(pValueX);
-				
+				updateRudder(pValueX);
 				updateThrottle(pValueY);
 				m_smRight.moveMarker(m_ucData2Send[IDX_RUD], (byte) (0xff - m_ucData2Send[IDX_THR]));
 				break;
 				
 			case 4:
-				if (this.m_bSwitches[SW_SENSOR_IDX] == true)
-					break;
-				
 				updateRudder(pValueX);
-				updateEle(-pValueY);
+				if (this.m_bSwitches[SW_SENSOR_IDX] == false)
+					updateEle(-pValueY);
 				m_smRight.moveMarker(m_ucData2Send[IDX_RUD], (byte) (0xff - m_ucData2Send[IDX_ELE]));
 				break;
 				
@@ -547,11 +557,11 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 	private void LoadTrims(Scene scene) {
 		// LEFT Analog
 		final int x1 = 40;
-		final int y1 = (CAMERA_HEIGHT - this.m_trOSC.getHeight()) / 2 + 40;		
+		final int y1 = (CAMERA_HEIGHT - this.m_trOSC.getHeight()) / 2 + 10;		
 		
 		// Right control
 		final int x2 = CAMERA_WIDTH - this.m_trOSC.getWidth() - 80;
-		final int y2 = (CAMERA_HEIGHT - this.m_trOSC.getHeight()) / 2 + 40;
+		final int y2 = (CAMERA_HEIGHT - this.m_trOSC.getHeight()) / 2 + 10;
 		
 		// Left Trim
 		final int w = (int)(m_aoscLeft.getControlBase().getWidth() * SCALE_FACTOR);
@@ -705,16 +715,146 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 	// onLoadComplete
 	// ============================================================================================
 	//@Override
+	
+	public static final int KEYCODE_BUTTON_A = 0x60;
+	public static final int KEYCODE_BUTTON_B = 0x61;
+	public static final int KEYCODE_BUTTON_C = 0x62;
+	public static final int KEYCODE_BUTTON_X = 0x63;
+	public static final int KEYCODE_BUTTON_Y = 0x64;
+	public static final int KEYCODE_BUTTON_Z = 0x65;
+	public static final int KEYCODE_BUTTON_L1       = 102;
+	public static final int KEYCODE_BUTTON_R1       = 103;
+	public static final int KEYCODE_BUTTON_L2       = 104;
+	public static final int KEYCODE_BUTTON_R2       = 105;
+	public static final int KEYCODE_BUTTON_START    = 108;
+	public static final int KEYCODE_BUTTON_SELECT   = 109;
+	
+	public static final int KEYCODE_W               = 51;
+	public static final int KEYCODE_A               = 29;
+	public static final int KEYCODE_S               = 47;
+	public static final int KEYCODE_D               = 32;
+	
+	private static final int[] KEYS_BUTTON = new int[] {
+	    KEYCODE_BUTTON_A,
+	    KEYCODE_BUTTON_B,
+	    KEYCODE_BUTTON_X,
+	    KEYCODE_BUTTON_Y,
+	    KEYCODE_BUTTON_START,
+	    KEYCODE_BUTTON_L1,
+	    KEYCODE_BUTTON_R1,
+	    KEYCODE_BUTTON_L2,
+	    KEYCODE_BUTTON_R2,
+	};
+	
+	private static final int[] KEYS_TRIM = new int[] {
+	    KEYCODE_W,
+	    KEYCODE_S,
+	    KEYCODE_A,
+	    KEYCODE_D
+	};
+    
+	public double getExp(double v) {
+		if (v < 0)
+			v = (float)(1 / Math.exp(((double)v + 128.0) / 25.0) * (-85.0));
+		else
+			v = (float)((float) Math.exp(((double)v - 128.0) / 25.0) * 85.0);
+			
+		return v;
+	}
+	
 	public void onLoadComplete() {
-        if (m_btCom == null)
-            m_btCom = new BTReceiverCom(this);
+        if (app.m_btCom == null)
+            app.m_btCom = new BTReceiverCom(this);
+        
+        m_hndIPega = new Handler() {
+	        @Override
+	        public void handleMessage(final Message msg) {
+	        	float x = 0, y = 0;
+
+	        	if (m_nLandingState != LANDING_STATE_UP_DONE &&
+	        		m_nLandingState != LANDING_STATE_DOWN_DONE)
+	        		return;
+	        	
+	            super.handleMessage(msg);
+	            switch (msg.what) {
+	            case 1:
+	            	x = msg.arg1;
+           			y = msg.arg2;
+
+           			x = (float)getExp(x);
+           			y = (float)getExp(y);
+	            	updateStickData(IDX_STICK_LEFT, IDX_INPUT_STICK, (float)(x  / 128.0f), (float)(y  / 128.0f));
+	            	//Log.d(TAG, String.format("L-STICK : %d, %d", x, y));
+	            	break;
+	            	
+	            case 2:
+            		x = msg.arg1;
+           			y = msg.arg2;
+           			
+           			x = (float)getExp(x);
+           			//y = (float)getExp(y);
+	            	updateStickData(IDX_STICK_RIGHT, IDX_INPUT_STICK, (float)(x  / 128.0f), (float)(y  / 128.0f));
+	            	//Log.d(TAG, String.format("R-STICK : %d, %d", x, y));
+	            	break;
+
+	            case 3:
+	            	Log.d(TAG, String.format("KEY : %d : %s", msg.arg1, msg.arg2 == KeyEvent.ACTION_DOWN ? "DOWN" : "UP"));
+	            	BTReceiverController.this.runOnUpdateThread(new Runnable() {
+						@Override
+						public void run() {
+		            		int i;
+			            	for (i = 0; i < KEYS_BUTTON.length; i++) {
+			            		if (KEYS_BUTTON[i] == msg.arg1)
+			            			break;
+			            	}
+			            	if (i != KEYS_BUTTON.length) {
+			            		updateToggleSW(i);
+			            	}
+			            	
+			            	for (i = 0; i < KEYS_TRIM.length; i++) {
+			            		if (KEYS_TRIM[i] == msg.arg1)
+			            			break;
+			            	}
+			            	if (i != KEYS_TRIM.length) {
+			            		updateTrimSW(i);
+			            	}
+						}
+					});
+	            	
+	            	if (msg.arg2 == KeyEvent.ACTION_DOWN) {
+
+	            		int i;
+		            	for (i = 0; i < KEYS_BUTTON.length; i++) {
+		            		if (KEYS_BUTTON[i] == msg.arg1)
+		            			break;
+		            	}
+		            	if (i != KEYS_BUTTON.length) {
+		            		updateToggleSW(i);
+		            	}
+		            	
+		            	for (i = 0; i < KEYS_TRIM.length; i++) {
+		            		if (KEYS_TRIM[i] == msg.arg1)
+		            			break;
+		            	}
+		            	if (i != KEYS_TRIM.length) {
+		            		updateTrimSW(i);
+		            	}
+	            	}
+	            	
+	            	break;
+	            }
+	        }
+        };
+        
+        //if (app.m_ipega == null)
+        	app.m_ipega = new BluezIPega(this, m_hndIPega);
         
         Intent intent = getIntent();
 	    m_strBTMac = intent.getStringExtra("BT_MAC");
         
         BluetoothDevice device =  BluetoothAdapter.getDefaultAdapter().getRemoteDevice(m_strBTMac);
         // Attempt to connect to the device
-        m_btCom.connect(device);
+        app.m_btCom.connect(device);
         
         m_ucData2Send = new byte[MAX_DATA_SIZE];
         m_ucData2Send[IDX_BEG] = 0;
@@ -726,6 +866,7 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
         	m_ucData2Send[i] = 0x01;
         
         startTimer();
+        Log.d(TAG, "onLoadComplete !!!");
 	}
 
 	
@@ -734,6 +875,7 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 	// ============================================================================================	
 	@Override
 	public void onResumeGame() {
+		Log.d(TAG, "onResumeGame!!!");
 		super.onResumeGame();
 	}
 
@@ -749,27 +891,43 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 		app.SaveSettings();
 	}
 	
+	public void stop() {
+		this.disableAccelerometerSensor();
+	    stopTimer();
+	    
+	    if (app.m_btCom.isConnected()) {
+	        m_ucData2Send[IDX_BEG] = 0;
+	        m_ucData2Send[IDX_ELE] = 0x7f;
+	        m_ucData2Send[IDX_RUD] = 0x01; //7f;
+	        m_ucData2Send[IDX_THR] = 0x01;
+	        m_ucData2Send[IDX_AIL] = 0x7f;
+	        for (int i = IDX_SWI; i < MAX_DATA_SIZE; i++)
+	        	m_ucData2Send[i] = 0x01;
+	        app.m_btCom.write(m_ucData2Send);
+	    }
+
+        app.m_btCom.stop();
+        app.m_btCom = null;
+        
+        app.m_ipega.stop();
+        //app.m_ipega = null;
+    
+        saveTrim();
+	}
+	
 	@Override
 	public void onPauseGame() {
 		super.onPauseGame();
-		this.disableAccelerometerSensor();
-       stopTimer();
-        
-        m_ucData2Send[IDX_BEG] = 0;
-        m_ucData2Send[IDX_ELE] = 0x7f;
-        m_ucData2Send[IDX_RUD] = 0x7f;
-        m_ucData2Send[IDX_THR] = 0x01;
-        m_ucData2Send[IDX_AIL] = 0x7f;
-        for (int i = IDX_SWI; i < MAX_DATA_SIZE; i++)
-        	m_ucData2Send[i] = 0x01;
-        m_btCom.write(m_ucData2Send);
-
-        m_btCom.stop();
-        m_btCom = null;
-        
-        saveTrim();		
+		Log.d(TAG, "onPauseGame!!!");
 	}
 	
+	@Override
+	public void onStop() {
+		super.onStop();
+		Log.e(TAG, ">>>> Stop !!!");
+		stop();
+	}
+
 	// ============================================================================================
 	// THROTTLE
 	// ============================================================================================
@@ -888,7 +1046,34 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 	// updateToggleSW
     public void updateToggleSW(int idx) {
 		this.m_btaSwitches[idx].clearTextureAtlasSources();
-		this.m_bSwitches[idx] = !this.m_bSwitches[idx];
+		if (idx == SW_LAND_IDX) {
+			if (m_nLandingState == LANDING_STATE_UP_DONE) {
+				m_nLandingState = LANDING_STATE_DOWN_1;
+				this.m_bSwitches[idx] = false;
+			}
+			else if (m_nLandingState == LANDING_STATE_DOWN_DONE) {
+				m_nLandingState = LANDING_STATE_UP_1;
+				this.m_bSwitches[idx] = true;
+/*				
+				if (m_nThrottleVal != 0) {
+					this.m_bSwitches[idx] = true;
+					m_nLandingState = LANDING_STATE_DOWN;
+					Log.d(TAG, "LANDING DOWN !!!!");
+				}
+				else if (m_nThrottleVal == 0){
+					this.m_bSwitches[idx] = true;
+					m_nLandingState = LANDING_STATE_UP;
+					Log.d(TAG, "LANDING UP !!!!");
+				}
+*/				
+			}
+		} else {
+			this.m_bSwitches[idx] = !this.m_bSwitches[idx];
+		}
+		
+		Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+		vibe.vibrate(30);
+		
 		Log.e(TAG, "Toggle " + idx + ", val=" + this.m_bSwitches[idx]);
 		BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.m_btaSwitches[idx], this, this.m_bSwitches[idx] ? "sw_on.png" : "sw_off.png", 0, 0);
 		if (m_ucData2Send != null && idx < SW_EXT_IDX ) {
@@ -940,6 +1125,9 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 	// updateTrimSW
     public void updateTrimSW(int idx) {
 		float val;
+		
+		Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+		vibe.vibrate(10);
 		
     	if (idx < 4) {
     		switch (m_nStickMode) {
@@ -1042,10 +1230,10 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 			case 2:
 				switch (idx) {
     			case ARROW_UP_IDX:
-    				m_nTrimThrottle = Cut(++m_nTrimElevator, 0, 255);
+    				m_nTrimElevator = Cut(++m_nTrimElevator, 0, 255);
     				break;
     			case ARROW_DOWN_IDX:
-    				m_nTrimThrottle = Cut(--m_nTrimElevator, 0, 255);
+    				m_nTrimElevator = Cut(--m_nTrimElevator, 0, 255);
     				break;
     			case ARROW_LEFT_IDX:
     				m_nTrimAileron = Cut(--m_nTrimAileron, 0, 255);
@@ -1078,10 +1266,10 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 			case 4:
 				switch (idx) {
     			case ARROW_UP_IDX:
-    				m_nTrimThrottle = Cut(++m_nTrimElevator, 0, 255);
+    				m_nTrimElevator = Cut(++m_nTrimElevator, 0, 255);
     				break;
     			case ARROW_DOWN_IDX:
-    				m_nTrimThrottle = Cut(--m_nTrimElevator, 0, 255);
+    				m_nTrimElevator = Cut(--m_nTrimElevator, 0, 255);
     				break;
     			case ARROW_LEFT_IDX:
     				m_nTrimRudder = Cut(--m_nTrimRudder, 0, 255);
@@ -1104,11 +1292,12 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 	// ============================================================================================
     class RefreshTask extends TimerTask {
         public void run() {
-            m_hndTxData.sendEmptyMessage(0);
+            m_hndTxData.sendEmptyMessage(1);
         }
     }
 
     // startTimer
+    private int nLandCtr = 0;
     private void startTimer() {
         Log.e(TAG, "startTimer");
 
@@ -1117,9 +1306,103 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 	        public void handleMessage(Message msg) {
 	            super.handleMessage(msg);
 	            switch (msg.what) {
-	            case 0:
+	            case 1:
+
+/*
+	            	if (m_nLandingState == LANDING_STATE_UP) {
+	            		int nMax = (int)((float)m_nThrottleRange * ((float)app.m_nTakeOff / 30.0f));
+	            		//Log.d(TAG, "LANDING UP !!!!" + nLandCtr + ", " + m_nThrottleVal);
+	            		if (m_nThrottleVal < nMax) {
+	            			m_nThrottleVal++; 
+	            			updateThrottle(0);
+	            		} else {
+	            			m_nLandingState = LANDING_STATE_FINISH;
+	            			updateToggleSW(SW_LAND_IDX);
+	            		}
+	    			} else if (m_nLandingState == LANDING_STATE_DOWN) {
+	    				Log.d(TAG, "LANDING DOWN !!!! " + nLandCtr + ", " + m_nThrottleVal);
+	    				if (m_nThrottleVal > 0) {
+	    					if (nLandCtr == 0) {
+	    						m_nThrottleVal--;
+	    						updateThrottle(0);
+	    					}
+	    				} else {
+	            			m_nLandingState = LANDING_STATE_FINISH;
+	            			updateToggleSW(SW_LAND_IDX);
+	            		}
+	    			}
+*/
+	            	if (m_nLandingState >= LANDING_STATE_UP_1 &&
+	            		m_nLandingState < LANDING_STATE_UP_DONE &&
+	            		nLandCtr == 0) {
+
+	            		Log.d(TAG, String.format("Landing state : %d", m_nLandingState));
+	            		switch (m_nLandingState) {
+		            		case LANDING_STATE_UP_1:
+		            			m_nThrottleVal = 0;
+		            			//updateThrottle(0);
+		            			//updateRudder(-1.0f);
+		            			//updateEle(-1.0f);
+		            			updateStickData(IDX_STICK_LEFT, IDX_INPUT_STICK, -1.0f, 1.0f);
+		            			updateStickData(IDX_STICK_RIGHT, IDX_INPUT_STICK, 0.0f, 0.0f);
+		            			break;
+
+		            		case LANDING_STATE_UP_2:
+		            		case LANDING_STATE_UP_4:
+		            		case LANDING_STATE_UP_6:
+		            			m_nThrottleVal = 0;
+		            			//updateThrottle(0);
+		            			//updateRudder(0.0f);
+		            			//updateEle(0.0f);
+		            			updateStickData(IDX_STICK_LEFT, IDX_INPUT_STICK, 0.0f, 0.0f);
+		            			updateStickData(IDX_STICK_RIGHT, IDX_INPUT_STICK, 0.0f, 0.0f);
+		            			break;
+		            			
+		            		case LANDING_STATE_UP_3:
+		            			m_nThrottleVal = 255;
+		            			//updateThrottle(0);
+		            			//updateRudder(-1.0f);
+		            			//updateEle(-1.0f);
+		            			updateStickData(IDX_STICK_LEFT, IDX_INPUT_STICK, -1.0f, 1.0f);
+		            			updateStickData(IDX_STICK_RIGHT, IDX_INPUT_STICK, 0.0f, 1.0f);
+		            			break;
+		            			
+		            		case LANDING_STATE_UP_5:
+		            			m_nThrottleVal = 0;
+		            			//updateThrottle(0);
+		            			//updateRudder(1.0f);
+		            			//updateEle(0.0f);
+		            			updateStickData(IDX_STICK_LEFT, IDX_INPUT_STICK, 1.0f, 0.0f);
+		            			updateStickData(IDX_STICK_RIGHT, IDX_INPUT_STICK, 0.0f, 0.0f);
+		            			break;
+	            		}
+            			m_nLandingState++;
+	            	}
 	            	
-	            	if (m_btCom == null || !m_btCom.isConnected())
+	            	if (m_nLandingState >= LANDING_STATE_DOWN_1 &&
+		            	m_nLandingState < LANDING_STATE_DOWN_DONE &&
+		            	nLandCtr == 0) {
+	            		switch (m_nLandingState) {
+	            			case LANDING_STATE_DOWN_1:
+	            				updateStickData(IDX_STICK_LEFT, IDX_INPUT_STICK, -1.0f, 0.0f);
+	            				updateStickData(IDX_STICK_RIGHT, IDX_INPUT_STICK, 0.0f, 0.0f);
+	            				break;
+	            				
+	            			case LANDING_STATE_DOWN_2:
+		            			m_nThrottleVal = 0;
+		            			//updateThrottle(0);
+		            			//updateRudder(0.0f);
+		            			//updateEle(0.0f);
+		            			updateStickData(IDX_STICK_LEFT, IDX_INPUT_STICK, 0.0f, 0.0f);
+		            			updateStickData(IDX_STICK_RIGHT, IDX_INPUT_STICK, 0.0f, 0.0f);
+		            			break;
+	            		}
+	            		m_nLandingState++;
+	            	}
+	            	
+	            	nLandCtr = (nLandCtr + 1) % 100;
+
+	            	if (app.m_btCom == null || !app.m_btCom.isConnected())
 	            		break;
 	            	
 	            	String str = "";
@@ -1130,8 +1413,8 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 	            	}
 	            	//Log.d(TAG, str);
 	            	
-	            	if (m_btCom != null && m_btCom.isConnected())
-	            		m_btCom.write(m_ucData2Send);
+	            	if (app.m_btCom != null && app.m_btCom.isConnected())
+	            		app.m_btCom.write(m_ucData2Send);
 	                break;
 	            }
 	        }
@@ -1139,7 +1422,7 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
         
         m_tmrTxData = new Timer();
         m_tskTxData = new RefreshTask();
-        m_tmrTxData.schedule(m_tskTxData, 0, 20);
+        m_tmrTxData.schedule(m_tskTxData, 0, 17);
     }
 
     // stopTimer
@@ -1163,7 +1446,7 @@ public class BTReceiverController extends BaseExample implements IAccelerometerL
 		float y = pAccelerometerData.getY() / (16 - m_nSensitivity);
 		
 		msg = String.format("%f, %f", x, y);
-		//Log.e(TAG, msg);
+		Log.e(TAG, msg);
 
 		switch (m_nStickMode) {
 		case 1:

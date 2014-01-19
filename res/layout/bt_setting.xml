@@ -21,7 +21,7 @@
         android:layout_weight="1.81"
         android:stackFromBottom="false" />
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <RelativeLayout 
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
       android:gravity="center_vertical">

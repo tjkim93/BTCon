@@ -59,6 +59,7 @@
     <string name="config_stick">Stick Mode</string>
     <string name="config_reverse">Reverse Setting</string>
     <string name="config_sensor_sensitivity">Sensor Sensitivity</string>
+    <string name="config_auto_takeoff">Take Off Level</string>
     
     <string name="btn_hold">HOLD</string>
     <string name="btn_trim">TRIM</string>

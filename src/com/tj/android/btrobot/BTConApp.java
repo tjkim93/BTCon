@@ -42,9 +42,15 @@ public class BTConApp extends Application {
 	private static String SENSOR_SENSITIVITY = "SENSOR_SENSITIVITY";
 	public int	m_nSensitivity   = 0;
 	
+	private static String TAKEOFF_PERCENTAGE = "TAKEOFF_PERCENTAGE";
+	public int	m_nTakeOff   = 0;
+	
 	
 	private SharedPreferences m_spBTCon;
 	private Editor m_editorBTCon;
+	
+	public BTReceiverCom m_btCom = null;
+	public BluezIPega m_ipega = null;
 	
 	@Override
 	public void onCreate() {
@@ -68,6 +74,7 @@ public class BTConApp extends Application {
 		m_nTrimElevator = m_spBTCon.getInt(TRIM_ELE, 127);
 		m_nTrimRudder   = m_spBTCon.getInt(TRIM_RUD, 127);
 		m_nSensitivity  = m_spBTCon.getInt(SENSOR_SENSITIVITY, 0);
+		m_nTakeOff      = m_spBTCon.getInt(TAKEOFF_PERCENTAGE, 0);
 	}
 
 	public void SaveSettings() {
@@ -82,6 +89,7 @@ public class BTConApp extends Application {
 		m_editorBTCon.putInt(TRIM_ELE, m_nTrimElevator);
 		m_editorBTCon.putInt(TRIM_RUD, m_nTrimRudder);
 		m_editorBTCon.putInt(SENSOR_SENSITIVITY, m_nSensitivity);
+		m_editorBTCon.putInt(TAKEOFF_PERCENTAGE, m_nTakeOff);
 		m_editorBTCon.commit();
 	}
 

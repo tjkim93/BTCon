@@ -88,8 +88,8 @@ public class BTReceiverCom {
     
 	public void finalize() {
         // Stop the Bluetooth chat services
-        if (mBTService != null)
-            mBTService.stop();
+        //if (mBTService != null)
+        //    mBTService.stop();
 	}
 	
 	public void write(byte[] out) {

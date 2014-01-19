@@ -38,6 +38,9 @@ public class BTConConfig extends Activity implements SeekBar.OnSeekBarChangeList
     CheckBox checkRudder;
     SeekBar  seekSensitivity;
     TextView textSensitivity;
+    
+    SeekBar  seekTakeOff;
+    TextView textTakeOff;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,9 +57,13 @@ public class BTConConfig extends Activity implements SeekBar.OnSeekBarChangeList
         checkRudder    = (CheckBox) findViewById(R.id.checkBoxRevRudder);
         seekSensitivity = (SeekBar) findViewById(R.id.seekBarSensitivity);
         textSensitivity = (TextView)findViewById(R.id.textViewSensitivity);
-        
         seekSensitivity.setMax(10);
         seekSensitivity.setOnSeekBarChangeListener(this);
+        
+        seekTakeOff = (SeekBar) findViewById(R.id.seekBarTakeOff);
+        textTakeOff = (TextView)findViewById(R.id.textViewTakeOff);
+        seekTakeOff.setMax(30);
+        seekTakeOff.setOnSeekBarChangeListener(this);
         
         stickMode.setOnItemSelectedListener(
                 new OnItemSelectedListener() {
@@ -88,6 +95,8 @@ public class BTConConfig extends Activity implements SeekBar.OnSeekBarChangeList
         checkRudder.setChecked(app.m_bRevRudder);
         seekSensitivity.setProgress(app.m_nSensitivity);
         textSensitivity.setText(String.format("%d", app.m_nSensitivity));
+        seekTakeOff.setProgress(app.m_nTakeOff);
+        textTakeOff.setText(String.format("%d", app.m_nTakeOff));
         
         mBTMac = app.m_strMacAddress;
     }
@@ -133,14 +142,26 @@ public class BTConConfig extends Activity implements SeekBar.OnSeekBarChangeList
 		app.m_bRevElevator  = checkElevator.isChecked();
 		app.m_bRevRudder    = checkRudder.isChecked();
 		app.m_nSensitivity  = seekSensitivity.getProgress();
+		app.m_nTakeOff      = seekTakeOff.getProgress();
 		app.SaveSettings();
 	}
 	
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromTouch) {
     	String strProg = String.format("%d", progress);
-    	textSensitivity.setText(strProg);
-    	Log.e(TAG, "prog : progress" + progress + " ," + fromTouch);
+    	
+    	switch (seekBar.getId())
+    	{
+    	case R.id.seekBarTakeOff:
+    		textTakeOff.setText(strProg);
+    		Log.e(TAG, "Takeoff : " + progress + " ," + fromTouch);
+    		break;
+    	case R.id.seekBarSensitivity:
+    		textSensitivity.setText(strProg);
+    		Log.e(TAG, "sensitivity : " + progress + " ," + fromTouch);
+    		break;
+    	}
     }
+    
     public void onStartTrackingTouch(SeekBar seekBar) {
         //mTrackingText.setText(getString(R.string.seekbar_tracking_on));
     }
